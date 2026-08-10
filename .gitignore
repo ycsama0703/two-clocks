@@ -6,3 +6,4 @@ experiments/runs/
 experiments/emb_cache.npz
 experiments/emb_cache_e3.npz
 data/companyfacts/
+data/acceptance/

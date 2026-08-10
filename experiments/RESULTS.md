@@ -33,3 +33,29 @@ channel carries some signal" and been accepted.
   floor is lower than the theoretical one and the effect size is larger.
 - Any representation encoding only the event axis fails regardless of whether it
   is relative or absolute — the two candidates share an event time exactly.
+
+
+# E2 — closed form vs the real corpus
+
+`experiments/e2_collision.py`. 500 queries, pool from the same ticker, ordered by
+event time with a neutral tie-break, rho_t truncated to int32 as RoPE does.
+
+| L | usable | median delta_i | predicted (delta_i=1) | predicted (measured delta_i) | measured |
+|---|---|---|---|---|---|
+| 50 | 499 | 1 | 0.633 | 0.453 | **0.455** |
+| 200 | 480 | 2 | 0.910 | 0.688 | **0.704** |
+| 1000 | 225 | 11 | 0.982 | 0.735 | **0.680** |
+
+**The closed form holds when delta_i is measured rather than assumed** (error
+0.002 at L=50, 0.016 at L=200). L=1000 deviates more (0.055) on only 225 usable
+pools -- few tickers have 1000 chunks.
+
+**Correction.** The repeatedly quoted "98.2% at L=1000" is the delta_i=1 special
+case. Only 32.9% of pairs are actually adjacent; other chunks sharing the event
+time fall between them after the shuffle (median delta_i = 2 at L=200, 11 at
+L=1000, max 30). On the real corpus the collision rate is 0.455-0.704, not
+0.633-0.982. Quote the measured numbers, not the adjacent-pair bound.
+
+Note: task accuracy is deliberately not reported here. Gold and distractor share
+an event time exactly, so under a neutral tie-break their order is random whether
+they collide or not -- accuracy is flat in L by construction.

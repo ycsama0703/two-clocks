@@ -1,5 +1,7 @@
-# bitemporal-bench
+# two-clocks
 
+> A financial fact carries two clocks. Every retrieval system we tested encodes one.
+>
 > The first **bitemporal** retrieval benchmark. Existing long-context and temporal
 > retrieval benchmarks are **uni-temporal**: they assume text order carries the
 > complete temporal signal. Real corpora with version histories have two clocks

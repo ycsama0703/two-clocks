@@ -1,4 +1,4 @@
-# Agent onboarding — bitemporal-bench
+# Agent onboarding — two-clocks
 
 Read this before touching anything. It is written for an AI agent picking the
 project up cold. `README.md` explains *what the research is*; this file explains
@@ -75,7 +75,7 @@ C:/Windows/System32/OpenSSH/ssh.exe luyao4 "command"
 ~/workspace/projects/alphagap/.venv/bin/python
 
 # Project root
-~/workspace/projects/bitemporal-bench/
+~/workspace/projects/two-clocks/
 ```
 
 `src/position.py` self-inserts `vendor/deps` and `vendor/qrag` into `sys.path`,

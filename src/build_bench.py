@@ -27,7 +27,7 @@ from collections import defaultdict
 from datetime import date, timedelta
 
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
-CF = os.path.expanduser("~/repairable-experience/data/edgar/companyfacts/*.json")
+CF = os.path.join(OUT, "companyfacts", "*.json")
 ACC = os.path.join(OUT, "acceptance.json")
 
 MIN_WINDOW = 30          # days between the two disclosures

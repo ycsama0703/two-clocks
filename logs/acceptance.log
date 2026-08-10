@@ -1,0 +1,39 @@
+companies 684   shards present 0   to fetch 684
+  [ 20/684] ALAB   399 accessions   0.3 min elapsed, ~11.1 min left
+  [ 40/684] APP    800 accessions   0.7 min elapsed, ~11.3 min left
+  [ 60/684] AZN    2023 accessions   0.9 min elapsed, ~9.9 min left
+  [ 80/684] BIIB   2714 accessions   1.4 min elapsed, ~10.6 min left
+  [100/684] BX     1709 accessions   1.8 min elapsed, ~10.8 min left
+  [120/684] CHRW   2190 accessions   2.5 min elapsed, ~11.9 min left
+  [140/684] COF    4388 accessions   3.1 min elapsed, ~11.9 min left
+  [160/684] CSX    2507 accessions   3.4 min elapsed, ~11.0 min left
+  [180/684] DIDIY  80 accessions   3.7 min elapsed, ~10.3 min left
+  [200/684] ELV    2622 accessions   4.0 min elapsed, ~9.7 min left
+  [220/684] EXC    5859 accessions   4.4 min elapsed, ~9.2 min left
+  [240/684] FIX    1663 accessions   4.8 min elapsed, ~8.9 min left
+  [260/684] GFS    263 accessions   5.1 min elapsed, ~8.2 min left
+  [280/684] HDB    770 accessions   5.8 min elapsed, ~8.4 min left
+  [300/684] IDXX   2153 accessions   6.2 min elapsed, ~7.9 min left
+  [320/684] ITW    2536 accessions   6.5 min elapsed, ~7.4 min left
+  [340/684] KLAC   2564 accessions   7.6 min elapsed, ~7.6 min left
+  [360/684] LPLA   1759 accessions   7.9 min elapsed, ~7.1 min left
+  [380/684] MELI   805 accessions   8.2 min elapsed, ~6.6 min left
+  [400/684] MS     107173 accessions   9.0 min elapsed, ~6.4 min left
+  [420/684] NI     2539 accessions   9.4 min elapsed, ~5.9 min left
+  [440/684] NWSA   2336 accessions   9.7 min elapsed, ~5.4 min left
+  [460/684] PBR    4838 accessions   10.1 min elapsed, ~4.9 min left
+  [480/684] PNFP   148 accessions   10.5 min elapsed, ~4.5 min left
+  [500/684] RCL    2259 accessions   10.9 min elapsed, ~4.0 min left
+  [520/684] RPRX   618 accessions   11.2 min elapsed, ~3.5 min left
+  [540/684] SLF    1094 accessions   11.6 min elapsed, ~3.1 min left
+  [560/684] STM    965 accessions   11.9 min elapsed, ~2.6 min left
+  [580/684] TER    1858 accessions   12.4 min elapsed, ~2.2 min left
+  [600/684] TRV    3741 accessions   12.7 min elapsed, ~1.8 min left
+  [620/684] UMC    725 accessions   13.0 min elapsed, ~1.3 min left
+  [640/684] VRSK   1626 accessions   13.3 min elapsed, ~0.9 min left
+  [660/684] WM     3256 accessions   13.6 min elapsed, ~0.5 min left
+  [680/684] ZBRA   1913 accessions   14.0 min elapsed, ~0.1 min left
+  [684/684] ZTO    370 accessions   14.1 min elapsed, ~0.0 min left
+
+fetched 684   failed 0
+merged 685 shards -> /home/ycliu0703/workspace/projects/two-clocks/data/acceptance.json (2022102 accessions, 69.4 MB)

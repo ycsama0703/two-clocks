@@ -101,3 +101,77 @@ reverse. This is the impossibility result in empirical form.
 Failure 3 is the dangerous one: it yields a plausible null that appears to
 support an even stronger claim than the truth - "no ordering supports period
 matching" - when in fact ordering by event time supports it fine.
+
+
+# v3 rebuild at 669-company scale (2026-08-11)
+
+Corpus rebuilt from 684 SEC companyfacts (candidate pool = top 700 by market cap
+in SEC's `company_tickers.json`; 39 ADRs excluded automatically because they file
+20-F and publish no XBRL companyfacts). Everything below was re-measured on the
+new corpus; nothing was re-tuned.
+
+|  | v2 (62 tickers) | v3 (669 tickers) |
+|---|---|---|
+| queries / chunks | 21,268 / 42,536 | **165,731 / 331,462** |
+| ceiling by concept (red line) | 0.6128 | **0.6249** |
+| ceiling by ticker | 0.5978 | 0.6257 |
+| Phase-0 [4] causal lever | 1.0000 / 1.0000 | 1.0000 / 1.0000 |
+| Phase-0 [2] side channel | 0.5031 | 0.5017 |
+| Phase-0 [6] dual / relative | 1.0000 / 0.5065 | 0.9997 / 0.4997 |
+| Phase-0 [5] raw / masked | 0.508 / 0.509 | 0.504 / 0.501 |
+| collision window median | 364 | 364 |
+| k=2 within +-7d of 364 | 91.8% | 89.0% (n=126,571) |
+| reporting lag median | 34 | 37 |
+
+## E1 smoke — pre-registered check PASSES at 7.8x the data
+
+| time input | v2 | v3 |
+|---|---|---|
+| no-time | 0.5020 | 0.5320 |
+| **relative-only** | 0.4920 | **0.5180** (inside [0.50, 0.62]) |
+| absolute (pool index) | 0.5020 | 0.5960 |
+| dual-clock | 0.9200 | 0.9460 |
+
+Effect size dual-clock minus relative-only: 42.8 pp in v2, 42.8 pp in v3 -
+unchanged. `absolute` rose from 0.502 to 0.596, but the ceiling rose too
+(0.6128 -> 0.6249), so it stays below the red line and is still explainable by
+the value channel rather than by positional information.
+
+Phase-0 numbers all moved CLOSER to their theoretical values with 7.8x the
+sample ([6] 0.5065 -> 0.4997, [5] 0.508 -> 0.504), which is what noise
+convergence looks like.
+
+## E2 — closed form still holds
+
+| L | usable | median delta_i | predicted (measured delta_i) | measured |
+|---|---|---|---|---|
+| 50 | 499 | 1 | 0.398 | 0.429 |
+| 200 | 474 | 3 | 0.623 | 0.639 |
+| 1000 | 170 | 9 | 0.732 | 0.688 |
+
+median delta_i rose (2 -> 3 at L=200, max 30 -> 68): with 669 companies a pool
+drawn from one ticker holds more chunks sharing an event time, so more of them
+fall between the pair.
+
+## Two self-inflicted failures during this run, both logged as lessons
+
+**A deadlock.** `overnight.sh` waited on `pgrep -f fetch_acceptance.py`, which
+matched a *different* background task whose command line contained that string -
+and that task was itself waiting for the fetch to end. They waited on each other
+for 55 minutes. `luyao4-ops.md` documents exactly this trap ("pgrep -f matches
+the querying command itself"); reading it was not enough to avoid it. Cleaning up
+afterwards, `pkill -f "bash overnight.sh"` then killed the shell running it, for
+the same reason.
+
+**A silent wrong-data run.** `build_bench.py` still hardcoded
+`CF = ~/repairable-experience/...`, so it rebuilt from the OLD 63 companies while
+the acceptance map was the new 2,022,102 entries. All three steps returned
+EXIT=0 and produced a plausible 21,268 pairs. Nothing failed. It was caught only
+because two things looked wrong: E2's delta_i histogram was byte-identical to the
+62-company run, and three steps finished in 40 seconds when one of them had to
+read 2.1 GB.
+
+**The transferable lesson is not the two specific traps.** It is that "too fast"
+and "too quiet" are both alarms. A monitor that reported nothing for an hour on a
+20-minute job, and a step that finished 30x faster than physically possible, were
+the only signals that anything was wrong - the exit codes were all zero.

@@ -42,7 +42,7 @@ QA = [json.loads(l) for l in open(os.path.join(ROOT, "data/queries.jsonl"), enco
 QA = [QA[i] for i in rng.choice(len(QA), N, replace=False)]
 
 # ---- task B (same filing, different period) --------------------------------
-CF = os.path.expanduser("~/repairable-experience/data/edgar/companyfacts/*.json")
+CF = os.path.expanduser("~/workspace/projects/two-clocks/data/companyfacts/*.json")
 taskB, cidB = [], 0
 CB = {}
 for path in sorted(glob.glob(CF)):

@@ -1,0 +1,128 @@
+
+================================================================
+STEP 0  —  wait for the acceptance fetch to finish
+started 2026-08-11 01:11:42
+================================================================
+  acceptance done: 685 shards
+-rw-rw-r-- 1 ycliu0703 ycliu0703 72795673 Agu 11 00:11 data/acceptance.json
+  failures: []
+
+================================================================
+STEP 1  —  rebuild corpus (684 companies)
+started 2026-08-11 01:11:42
+================================================================
+acceptance map: 2022102
+series: 6977621  entries shifted by max(): 8819
+
+chunks : 331462    queries: 165731
+by k   : {2: 126571, 3: 39160}
+tickers: 669
+
+LEAK GUARD   date!=event_time: 0   own avail_time: 2
+COLLISION INVARIANTS (all must equal 165731): [165731, 165731, 165731, 165731]
+EXIT=0
+
+================================================================
+STEP 2  —  revalidate: ceiling + Phase-0 items 2/4/5/6
+started 2026-08-11 01:12:50
+================================================================
+corpus: 165731 queries / 331462 chunks / 669 tickers
+label balance: 0.498
+
+====================================================================
+PRE-REGISTERED CEILING (value channel) -- the red line
+====================================================================
+  GroupKFold by concept    0.6249  (+/- 0.0151)
+  GroupKFold by ticker     0.6257  (+/- 0.0124)
+
+====================================================================
+PHASE-0 [4] causal lever   [2] side channel   [6] learnable floor
+====================================================================
+  [4] relative-only identical for both : 1.0000
+  [4] dual-clock rule accuracy         : 1.0000
+  [2] rel_A-rel_B decides              : 0.0% of pairs
+  [2] rel_A alone                      : 0.5017
+  [6] (dEvent, dAvail) dual-clock      : 0.9997  (+/- 0.0001)
+  [6] (dEvent) relative only           : 0.4997  (+/- 0.0016)
+
+====================================================================
+PHASE-0 [5] lexical shortcut (n=6000)
+====================================================================
+  raw text     0.5042  (+/- 0.0165)
+  masked       0.5012  (+/- 0.0175)
+
+====================================================================
+DISTRIBUTION PARAMETERS
+====================================================================
+  collision window: median 364  q25 363  q75 366
+  within +-7d of a multiple of 364 : 86.4%
+  within +-7d of a multiple of 365 : 85.9%
+  k=2 subset n=126571  median 364  within +-7d of 364: 89.0%
+  reporting lag: median 37  (5%-95%: 24-83)
+EXIT=0
+
+================================================================
+STEP 3  —  E2: closed form vs measured collision rate
+started 2026-08-11 01:13:10
+================================================================
+pairs: 500   ordering: by event time, neutral tie-break
+
+     L   usable median delta_i   predicted(d=1)  predicted(d^)   measured
+    50      499            1.0            0.633          0.398      0.429
+   200      474            3.0            0.910          0.623      0.639
+  1000      170            9.0            0.982          0.732      0.688
+
+delta_i distribution at L=200 (how many chunks fall between the pair):
+   delta_i=1    144  (30.4%)
+   delta_i=2     76  (16.0%)
+   delta_i=3     57  (12.0%)
+   delta_i=4     34  (7.2%)
+   delta_i=5     33  (7.0%)
+   delta_i=6     17  (3.6%)
+   delta_i=7     14  (3.0%)
+   delta_i=8     16  (3.4%)
+   ...  max delta_i = 68
+EXIT=0
+
+================================================================
+STEP 4  —  E1 smoke: does relative-only still land in [0.50, 0.62]?
+started 2026-08-11 01:13:20
+================================================================
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+pairs: 500   pool L=200   ordering: by event time
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3771.38it/s]
+encoder: thenlper/gte-base  dim=768  (CPU)
+   0/1000
+   640/1000
+encoded 1000 chunks (cached)
+interpolate factor: 1
+interpolate factor: 1
+label balance: 0.500
+
+==============================================================
+E1 SMOKE   pre-registered: relative-only in [0.50, 0.62]
+==============================================================
+  no-time          0.5320  (+/- 0.0392)   dim=768
+  relative-only    0.5180  (+/- 0.0306)   dim=768
+  absolute         0.5960  (+/- 0.0484)   dim=768
+  dual-clock       0.9460  (+/- 0.0150)   dim=768
+
+  red line (ceiling, GroupKFold by concept) : 0.6128
+  chance                                    : 0.5000
+  VERDICT: relative-only = 0.5180 INSIDE [0.50, 0.62] as pre-registered.
+EXIT=0
+
+================================================================
+ALL DONE  —  4 min total, 2026-08-11 01:16:19
+================================================================
+corpus:   165731 queries / 331462 chunks
+previous: 21268 queries (v2, 62 tickers)
+
+READ THIS FIRST — the pre-registered check:
+E1 SMOKE   pre-registered: relative-only in [0.50, 0.62]
+==============================================================
+  no-time          0.5320  (+/- 0.0392)   dim=768
+  relative-only    0.5180  (+/- 0.0306)   dim=768
+  absolute         0.5960  (+/- 0.0484)   dim=768
+  dual-clock       0.9460  (+/- 0.0150)   dim=768
+

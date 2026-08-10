@@ -43,7 +43,7 @@ def get(url, tries=3):
 
 # ---- (cik, accn, filed) from companyfacts -----------------------------------
 want = {}
-CF_GLOB = os.path.expanduser("~/repairable-experience/data/edgar/companyfacts/*.json")
+CF_GLOB = os.path.expanduser("~/workspace/projects/two-clocks/data/companyfacts/*.json")
 _files = sorted(glob.glob(CF_GLOB))
 if not _files:
     raise SystemExit("no companyfacts found at %s -- fix the path, do not "

@@ -59,3 +59,45 @@ L=1000, max 30). On the real corpus the collision rate is 0.455-0.704, not
 Note: task accuracy is deliberately not reported here. Gold and distractor share
 an event time exactly, so under a neutral tie-break their order is random whether
 they collide or not -- accuracy is flat in L by construction.
+
+
+# E3 - no single ordering supports both axes
+
+`experiments/e3_ordering.py`. GTE-base, L=200, 400 pairs per task.
+
+- Task A (as-of): candidates share event_time, differ in avail_time.
+- Task B (period): candidates share avail_time (same filing, comparative
+  reporting), differ in event_time.
+- The query carries a time anchor (as_of for A, target period for B), inserted
+  into the same ordering; candidate positions are given relative to it.
+
+| arm | ordering | task A | task B |
+|---|---|---|---|
+| relative-only | by event time | 0.497 | **0.679** |
+| relative-only | by filing time | **0.910** | 0.440 |
+| dual-clock | by event time | 0.905 | 0.684 |
+| dual-clock | by filing time | 0.912 | 0.701 |
+
+**Every single ordering is blind on one of the two tasks; the dual-clock
+representation is not.** relative-only crosses over cleanly: ordering by event
+time solves period matching and fails as-of; ordering by filing time does the
+reverse. This is the impossibility result in empirical form.
+
+## Three failed runs before this one, all methodological
+
+1. **No query in the features.** The probe saw only the candidate embedding
+   difference. Task A does not need the query (its rule is query-independent),
+   task B does, since the target period is drawn at random. Task B sat at chance
+   in all four cells.
+2. **Anchor position double-indexed.** iq is the anchor's RANK on an axis, so its
+   position is rho[iq]; the code used r[iq] where r = rho[order], which returns
+   the position of an unrelated item.
+3. **A linear probe cannot express a distance test.** Task A's rule is a sign
+   test (is availability before as_of?), linear in the raw offsets. Task B's rule
+   is "whichever offset is smaller in absolute value", which is not. Without an
+   explicit absolute-offset feature, task B stayed at chance regardless of
+   ordering.
+
+Failure 3 is the dangerous one: it yields a plausible null that appears to
+support an even stronger claim than the truth - "no ordering supports period
+matching" - when in fact ordering by event time supports it fine.

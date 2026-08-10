@@ -20,7 +20,7 @@ import requests
 
 UA = {"User-Agent": "AlphaGap Research yuncongliu0703@gmail.com"}
 BASE = "https://data.sec.gov/submissions/"
-OUT = os.path.expanduser("~/workspace/projects/bitemporal-bench/data/acceptance.json")
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "acceptance.json")
 CF = os.path.expanduser("~/repairable-experience/data/edgar/companyfacts/*.json")
 
 

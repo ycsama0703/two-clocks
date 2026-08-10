@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "two-clocks: a bitemporal retrieval benchmark"
+message: "If you use this benchmark or its closed-form results, please cite it."
+type: dataset
+authors:
+  - given-names: Yuncong
+    family-names: Liu
+    email: yuncongliu0703@gmail.com
+date-released: "2026-08-10"
+url: "https://github.com/ycsama0703/two-clocks"
+license: MIT
+keywords:
+  - bitemporal
+  - as-of retrieval
+  - look-ahead bias
+  - temporal identifiability
+  - long-context retrieval
+  - relative position encoding
+abstract: >-
+  A financial fact carries two clocks: the period it is about (event time) and
+  the moment it first became knowable (availability time). Existing long-context
+  and temporal retrieval benchmarks are uni-temporal, assuming text order carries
+  the complete temporal signal - an assumption that holds only because synthetic
+  corpora are generated in temporal order. This benchmark supplies 21,268 real
+  collision pairs from SEC EDGAR, where two versions of the same figure share an
+  event time but differ in availability, and shows that for any single linear
+  order the two-dimensional state is many-to-one, so as-of eligibility is not
+  recoverable from a relative position representation. Degradation is given in
+  closed form and verified bit-exact against a deployed RoPE implementation.

@@ -1,0 +1,418 @@
+<div align="center">
+
+# Q-RAG: Long Context Multi‑Step Retrieval via Value‑Based Embedder Training
+
+**🏆 Accepted at ICLR 2026 (Oral)**
+
+[![Paper](https://img.shields.io/badge/Paper-ICLR_2026-blue?style=for-the-badge)](https://openreview.net/forum?id=MS9nWFY7LG)
+[![arXiv](https://img.shields.io/badge/arXiv-2511.07328-b31b1b?style=for-the-badge)](https://arxiv.org/abs/2511.07328)
+[![Hugging Face](https://img.shields.io/badge/Hugging_Face-Q--RAG-yellow?style=for-the-badge&logo=huggingface&logoColor=white)](https://huggingface.co/Q-RAG)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![License](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey?style=for-the-badge)](https://creativecommons.org/licenses/by/4.0/)
+
+</div>
+
+<div align="center">
+
+### ⚠️ Note: This codebase is currently under active debugging and refactoring. 
+
+</div>
+
+**Q-RAG** is a resource-efficient method for **multi-step retrieval** trained with reinforcement learning directly in the latent space of text-chunk embeddings. Instead of expensive LLM fine-tuning, Q-RAG trains only a lightweight embedder agent using value-based RL (temporal difference learning), keeping the LLM frozen. This repository provides the full training and evaluation code to reproduce the results from the paper.
+
+Q-RAG achieves **state-of-the-art results** on long-context benchmarks (**BabiLong**, **RULER**) for contexts up to **10M tokens** and competitive performance on open-domain multi-hop QA (**HotpotQA**, **Musique**) — all trained on a **single A100 GPU**.
+ 
+---
+
+### Datasets and pretraining models
+
+You can download the necessary dataset and pretraining models from [🤗 Hugging Face](https://huggingface.co/Q-RAG) or [Google Drive](https://drive.google.com/drive/folders/1UUIx-6vEBF9Mij81iVgPul86aXhdyxhG). Default paths are set in `configs/envs/`. Dataset paths use relative paths (e.g., `../datasets/...`), so the `datasets/` folder must be placed **next to** the `Q-RAG` repository directory:
+>   ```
+>   parent_dir/
+>   ├── Q-RAG/      ← this repository
+>   └── datasets/   ← downloaded datasets go here
+>   ```
+
+### Results
+#### RULER benchmark (Table 1)
+Q-RAG achieves near-perfect retrieval on all NIAH subtasks, trained on 4K-length documents and generalizing up to 1M tokens:
+
+<p align="center">
+  <img src="images/Ruler.png" width="96%" />
+</p>
+
+#### Open-domain QA (Table 2)
+Results on HotpotQA (in-domain) and Musique (out-of-distribution). QwQ-32B was used as the reader LLM for Q-RAG and Beam Retriever:
+
+<p align="center">
+  <img src="images/OpenQA.png" width="96%" />
+</p>
+
+#### BabiLong benchmark
+Q-RAG achieves the highest average performance across 5 tasks (QA1–QA5) at context lengths from 1M to 10M tokens, outperforming Titans, Atlas, ARMT, RMT, and proprietary LLMs. On the hardest subtask **QA3** (3-hop temporal reasoning), Q-RAG shows virtually **no degradation** as context grows to 10M tokens, while all baselines degrade significantly.
+
+<p align="center">
+  <img src="images/Babilong_graphics.png" width="96%"/>
+</p>
+
+> **Reproducibility note:** Results may vary slightly across seeds. All training was performed on a single A100-80GB GPU within 12 hours per model.
+
+---
+
+## 🛠 Installation
+
+### Requirements
+
+- Python 3.12
+- CUDA-compatible GPU (80 GB A100 recommended for full reproduction)
+- Linux recommended (tested on Ubuntu with CUDA)
+
+### Setup
+
+```bash
+# Create conda environment
+conda create -n qrag python=3.12 -y
+conda activate qrag
+
+# Install dependencies
+python -m pip install pip==26.0.1 wheel==0.46.3
+pip install vllm==0.18.0  # pulls compatible PyTorch, Transformers, Triton, etc.
+pip install hydra-core==1.3.2 tensorboard==2.20.0 rotary-embedding-torch==0.8.9 pandas==3.0.1 nltk==3.9.4 sortedcontainers==2.4.0 accelerate==1.13.0 datasets==4.8.4
+```
+
+### Smoke test
+
+```bash
+python -c "from rl.agents.pqn import PQNActor; print('✅ Q-RAG installed successfully')"
+```
+
+---
+
+## 🔬 Reproducibility
+
+> **General notes:**
+> - Training is launched via `train_q_rag.py`. All hyperparameters are managed by [Hydra](https://hydra.cc/) configs in `configs/`.
+> - Results may vary slightly across seeds. All training was performed on a single A100-80GB GPU within 12 hours per model.
+> - **Config priority:** `CLI args` > `configs/testing.yaml` > `pretrained_path/config.yaml`
+
+
+**Models per benchmark:**
+- BabiLong & RULER → `facebook/contriever`
+- HotpotQA & Musique → `intfloat/multilingual-e5-large` and `Alibaba-NLP/gte-multilingual-base`
+
+---
+
+### 1. OpenQA Benchmarks (HotpotQA / Musique)
+
+#### Data Preparation
+
+Download HotpotQA and Musique datasets and place them so that the environment configs can find them. Default paths are set in `configs/envs/hotpotqa.yaml`, `configs/envs/musique.yaml`, and `configs/envs/hotpotqa+musique.yaml`.
+
+#### Training
+
+**E5 HotpotQA only:**
+
+```bash
+python train_q_rag.py \
+   envs=hotpotqa \
+   algo=pqn_e5_hotpotqa \
+   envs.data_path="your/path/to/datasets/hotpotqa" \
+   steps_count=10000 \
+   batch_size=12 \
+   accumulate_grads=8 \
+   eval_interval=100 \
+   envs_parallel=1 \
+   max_action_length=220
+   max_action_length_in_memory=220
+```
+
+**E5 MuSiQue only:**
+
+```bash
+python train_q_rag.py \
+  envs=musique \
+  algo=pqn_e5_musique \
+  envs.data_path="your/path/to/datasets/musique" \
+  steps_count=10000 \
+  batch_size=12 \
+  accumulate_grads=8 \
+  eval_interval=100 \
+  envs_parallel=1 \
+  max_action_length=110
+  max_action_length_in_memory=110
+```
+
+
+**HotpotQA + Musique (combined, GTE embedder):**
+
+```bash
+python train_q_rag.py \
+algo=pqn_gte \
+envs=hotpotqa+musique \
+eval_interval=100 \
+eval_episodes=200 \
+max_action_length=512 \
+max_action_length_in_memory=256 \
+batch_size=16 \
+accumulate_grads=2 \
+feedback.ground_truth.penalize_extra_steps=True \
+feedback.never_terminate=True \
+envs_parallel=1 \
+envs.max_steps=6
+```
+
+> **Note:** `max_action_length` and `max_action_length_in_memory` may need adjustment depending on the dataset, GPU memory, and the model’s context window.
+
+#### Evaluation HotpotQA or MuSiQue
+
+**Retriever evaluation:**
+
+`eval_retriever.py` evaluates a pretrained retriever checkpoint and writes logs to the model's folder as `eval_seed{seed}.jsonl`.
+
+**E5 HotpotQA only**
+
+```bash
+python eval_retriever.py \
+  pretrained_path=your/path/to/qrag-ft-e5-on-hotpotqa \
+  num_samples=-1 \
+  +envs.max_steps=2 \
+  +envs.data_path=your/path/to/datasets/hotpotqa
+```
+
+**E5 MuSiQue only**
+
+```bash
+python eval_retriever.py \
+  pretrained_path=your/path/to/qrag-ft-e5-on-musique \
+  num_samples=-1 \
+  +envs.max_steps=4 \
+  +envs.data_path=your/path/to/datasets/musique
+```
+
+
+**LLM evaluation:**
+
+```bash
+python eval_llm_openqa.py \
+     --file_path your/path/to/qrag-ft-e5-on-hotpotqa/eval_seed42.jsonl \
+     --model_name Qwen/QwQ-32B \
+     --output_file_path your/path/to/qrag-ft-e5-on-hotpotqa/llm-answering_eval.json
+```
+
+---
+
+### 2. BabiLong
+
+#### Data Preparation
+
+Download BabiLong data and set default paths are set in `configs/envs/babilong.yaml`.
+
+We use standart BabiLong pipline with pre-prepared samples from PG19 books as **noise**.
+This dataset you can download from [🤗 Hugging Face](https://huggingface.co/Q-RAG) or [Google Drive](https://drive.google.com/drive/folders/1UUIx-6vEBF9Mij81iVgPul86aXhdyxhG)
+
+The total number of chunks is controlled by the `num_chunks` / `num_sentences` parameter. The agent's task is to find the supporting facts among all chunks.
+
+#### Training
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_q_rag.py \
+  eval_interval=500 \
+  eval_episodes=1000 \
+  batch_size=64 \
+  accumulate_grads=1 \
+  max_action_length=64 \
+  max_action_length_in_memory=64 \
+  feedback.ground_truth.penalize_extra_steps=True \
+  feedback.never_terminate=True \
+  envs_parallel=1 \
+  logger.log_dir=runs/ \
+  envs.task="qa3_three-supporting-facts"
+```
+
+#### Evaluation
+
+**Retriever evaluation with single-length BabiLong:**
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python eval_retriever.py \
+    pretrained_path="your/path/to/model" \
+    envs.num_sentences=1200 \
+    +envs.test_env.feedback_model.never_terminate=True \
+    num_samples=-1 \
+    seed=42
+```
+
+**Retriever evaluation with multi-length BabiLong sweep** (1K → 1M tokens):
+
+```bash
+./scripts/eval_retriever_babilong.sh runs/<run_name> 0 42
+```
+
+> Sentence-to-token mapping: `50→1k, 160→4k, 1200→32k, 4600→128k, 40000→1M`
+
+**LLM evaluation with single-length BabiLong:**
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python eval_llm_synthetics.py \
+  retriever_logdir/retriever_logs.jsonl \
+  --llm_name "Qwen/Qwen3-4B" \
+  --babi_task qa3 \
+  --chunk_filter qvalue \
+  --stopping_threshold 0.5
+```
+
+**LLM evaluation with multi-length BabiLong sweep:**
+
+```bash
+# Multi-length sweep
+./scripts/eval_llm_babilong.sh path/to/retriever_logdir "Qwen/Qwen3-4B" "qa3" 0
+```
+
+---
+
+### 3. RULER
+
+#### Data Preparation
+
+Download RULER data and set default paths are set in `configs/envs/niah.yaml` or `configs/envs/hotpotqa+musique.yaml`.
+
+#### Training RULER-NIAH
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_q_rag.py envs=niah 
+
+```
+
+#### Evaluation RULER-NIAH
+
+**Retriever evaluation:**
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python eval_retriever.py \
+  pretrained_path="your/path/to/model" \
+  num_samples=1000 \
+  seed=42 \
+  use_last=True
+```
+
+**LLM evaluation:**
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python eval_llm_synthetics.py \
+  your/path/to/retriever_log.jsonl \
+  --llm_name "Qwen/Qwen3-4B" \
+  --babi_task "niahmv" \
+  --max_tokens 512
+```
+
+#### Evaluation RULER-QA
+
+**Retriever evaluation:**
+
+For single-hop QA
+```bash
+python eval_retriever.py \
+  pretrained_path=your/path/to/qrag-ft-gte-on-hotpotqa_musique \
+  num_samples=-1 \
+  +envs.max_steps=1 \
+  +envs.data_path=your/path/to/datasets/data_sources/RULER/QA-SQuAD
+```
+For multi-hop QA
+```bash
+python eval_retriever.py \
+  pretrained_path=your/path/to/qrag-ft-gte-on-hotpotqa_musique \
+  num_samples=-1 \
+  +envs.max_steps=3 \
+  +envs.data_path=your/path/to/datasets/data_sources/RULER/QA-HotpotQA
+```
+
+**LLM evaluation:**
+
+For both single-hop QA and multi-hop QA
+```bash
+python eval_llm_openqa.py \
+     --file_path your/path/to/qrag-ft-gte-on-hotpotqa_musique/eval_seed42.jsonl \
+     --model_name Qwen/QwQ-32B \
+     --output_file_path your/path/to/qrag-ft-gte-on-hotpotqa_musique/llm-answering_eval.json
+```
+---
+
+## 📂 Repository Structure
+
+```
+Q-RAG/
+├── train_q_rag.py              # Main training script
+├── eval_retriever.py           # Retriever evaluation
+├── eval_llm_synthetics.py      # LLM evaluation on BabiLong/Ruler
+├── eval_llm_longbench.py       # LLM evaluation on LongBench
+├── eval_sbor_q.py              # Q-value evaluation
+├── eval_feedback.py            # Feedback model evaluation
+├── ‎eval_llm_openqa.py          # LLM evaluation via vLLM on HotpotQA/MuSiQue
+│
+├── configs/                    # Hydra configs
+│   ├── training.yaml           # Main training config
+│   ├── testing.yaml            # Evaluation config overrides
+│   ├── algo/                   # Algorithm configs (pqn, pqn_gte, …)
+│   ├── envs/                   # Environment configs (babilong, hotpotqa, combined, …)
+│   ├── feedback/               # Feedback model configs
+│   └── logger/                 # Logging configs
+│
+├── rl/                         # Core RL module
+│   ├── agents/                 # Agent implementations (PQN, DQN, SAC-D, SARSA)
+│   ├── feedback/               # Feedback / reward models
+│   ├── q_module.py             # Q-function neural network
+│   ├── optim.py                # Optimizer utilities
+│   └── langchain_utils.py      # LangChain integration utilities
+│
+├── envs/                       # Environments
+│   ├── text_env.py             # Text retrieval environment
+│   ├── parallel_env.py         # Parallelized environment wrapper
+│   ├── qa_env.py               # QA environment
+│   ├── dataloaders/            # Dataset loaders (BabiLong, HotpotQA, Musique, …)
+│   └── utils.py                # Environment utilities
+│
+├── prompts_and_metrics/        # Prompts and evaluation metrics
+│   ├── babilong.py             # BabiLong prompts & metrics
+│   ├── general_qa.py           # General QA metrics
+│   ├── chunk_filtering.py      # Chunk filtering logic
+│   └── answer_metric.py        # Answer quality metric
+│
+├── scripts/                    # Shell scripts for batch evaluation
+    ├── eval_retriever_babilong.sh
+    ├── eval_llm_babilong.sh
+    └── train_niah.sh
+```
+
+---
+
+## 📝 Citation
+
+If you find Q-RAG useful, please cite our paper:
+
+```bibtex
+@inproceedings{sorokin2026qrag,
+  title     = {{Q-RAG}: Long Context Multi-Step Retrieval via Value-Based Embedder Training},
+  author    = {Sorokin, Artyom and Buzun, Nazar and Anokhin, Alexander and Vedernikov, Egor and Anokhin, Petr and Burtsev, Mikhail and Burnaev, Evgeny},
+  booktitle = {Proceedings of the International Conference on Learning Representations (ICLR)},
+  year      = {2026}
+}
+```
+
+```bibtex
+@article{sorokin2025qrag,
+  title   = {{Q-RAG}: Long Context Multi-Step Retrieval via Value-Based Embedder Training},
+  author  = {Sorokin, Artyom and Buzun, Nazar and Anokhin, Alexander and Inozemcev, Oleg and Vedernikov, Egor and Anokhin, Petr and Burtsev, Mikhail and Trushkov, Alexey and Yin, Wenshuai and Burnaev, Evgeny},
+  journal = {arXiv preprint arXiv:2511.07328},
+  year    = {2025}
+}
+```
+
+---
+
+## ⚖️ License & Acknowledgements
+
+This work is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+We thank the developers of the open-source tools and frameworks that made this work possible, including [Hydra](https://hydra.cc/), [vLLM](https://github.com/vllm-project/vllm), [PyTorch](https://pytorch.org/), [Contriever](https://github.com/facebookresearch/contriever), and [Multilingual E5](https://huggingface.co/intfloat/multilingual-e5-large). We also thank the creators of the [BabiLong](https://github.com/booydar/babilong), [RULER](https://github.com/hsiehjackson/RULER), [HotpotQA](https://hotpotqa.github.io/), and [Musique](https://github.com/stonybrooknlp/musique) benchmarks.
+
+For bug reports and questions, please open a [GitHub Issue](../../issues).

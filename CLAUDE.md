@@ -25,11 +25,21 @@ prediction.
 ```
 relative-only  ∈ [0.50, 0.62]     ← written down BEFORE the experiment
    0.50 = zero positional information (Phase-0 items 2/4/6)
-   0.62 = value-channel ceiling (GroupKFold by concept, level1_grouped.py)
+   0.62 = value-channel ceiling, measured ON THE ACTUAL CORPUS (n=20,392):
+            GroupKFold by concept  0.6162 (±0.0054)   <- the red line
+            GroupKFold by ticker   0.6016 (±0.0179)   <- stricter variant
 ```
 
 If a run exceeds 0.62, that is **not** a good result — it means an undiscovered
 leak. Stop and investigate. Do not rationalise it.
+
+> **Correction, logged 2026-08-10.** The ceiling was first measured as 0.627 on a
+> *larger* set (25,574 pairs, no `n_filings` filter) than the corpus actually
+> shipped (20,392 pairs, k∈{2,3}). Re-measured on the real corpus it is 0.6162.
+> The pre-registered bound 0.62 happens to survive, but it survived by luck —
+> always measure the ceiling on the exact set the experiment will run on.
+> Use the *by-concept* number as the red line: it is the looser of the two, so
+> exceeding it is unambiguous evidence of leakage rather than a grouping artefact.
 
 **② `dual-clock ≈ 0.99` is a reference upper bound, NOT our method.**
 

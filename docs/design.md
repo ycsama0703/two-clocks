@@ -166,3 +166,31 @@ SEC 的 concept label 自带 **`(Deprecated YYYY-MM-DD)`** 废弃标记。一个
 对照 floor=0.62。GO 条件见 `~/workspace/projects/alphagap/briefs/2026-08-10-MECH-AI-2.md` §6。
 
 最大不确定性不在数据（数据齐了），在**复现 Q-RAG 的 scorer**（代码在 `github.com/griver/Q-RAG`，3.5 MB）。
+
+
+## 复核记录（2026-08-10）
+
+对 Phase-0 六项做了一次事后复核，发现两个实质问题、三个次要观察。
+
+**问题 1 — floor 测错了样本集（已修正）。**
+`level1_grouped.py` 在 25,574 对上测得 0.627，但实际语料是 `build_bench.py`
+额外加了 `n_filings in {2,3}` 之后的 20,392 对。在真正的语料上重测：
+
+```
+GroupKFold by concept   0.6162  (+/- 0.0054)   <- 红线
+GroupKFold by ticker    0.6016  (+/- 0.0179)
+```
+
+预注册上界 0.62 侥幸仍然成立，但依据是错的。**天花板必须在实验实际要跑的那个集合上测。**
+
+**问题 2 — 项③ 采样偏向近期（未修）。**
+`phase0_item3.py` 按 `filed` 倒序取样，且只在 SEC submissions 的 `recent`
+（最近 1000 条）里匹配，59 条样本全部落在 2024-2026。语料跨 2007-2026，
+EDGAR 早期的 acceptance 行为未经检验。**当前结论只对近期 filing 成立**，
+补测需要拉 submissions 的分片历史文件。
+
+**次要观察**
+- 项② 做了代码审计与规则恢复实测，但 brief 要求的"逐字段画出 scorer 可见信息"
+  未落成系统文档
+- 项⑥ dual-clock 得 0.9987 而非确定性规则的 1.0000，这 0.13% 的差距未解释
+- 项⑤ TF-IDF 仅跑 6,000 样本子集，未全量

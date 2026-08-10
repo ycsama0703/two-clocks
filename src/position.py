@@ -21,8 +21,16 @@ import numpy as np
 import torch
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-for _p in (os.path.join(_HERE, "deps"), os.path.join(_HERE, "qrag")):
-    if _p not in sys.path:
+# Works both from the project root (vendor/ is a sibling of src/) and from a
+# flat layout where deps/ and qrag/ sit next to this file.
+_CANDIDATES = (
+    os.path.join(os.path.dirname(_HERE), "vendor", "deps"),
+    os.path.join(os.path.dirname(_HERE), "vendor", "qrag"),
+    os.path.join(_HERE, "deps"),
+    os.path.join(_HERE, "qrag"),
+)
+for _p in _CANDIDATES:
+    if os.path.isdir(_p) and _p not in sys.path:
         sys.path.insert(0, _p)
 
 from rl.bert_predictor import PositionalRotaryEmbedding  # noqa: E402

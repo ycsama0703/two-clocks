@@ -19,7 +19,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 import re
 
-ROOT = os.path.expanduser("~/workspace/projects/bitemporal-bench/data")
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data")
 rng = np.random.default_rng(0)
 D = lambda s: date(*map(int, s.split("-")))
 

@@ -194,3 +194,37 @@ EDGAR 早期的 acceptance 行为未经检验。**当前结论只对近期 filin
   未落成系统文档
 - 项⑥ dual-clock 得 0.9987 而非确定性规则的 1.0000，这 0.13% 的差距未解释
 - 项⑤ TF-IDF 仅跑 6,000 样本子集，未全量
+
+
+## v2 语料重建（2026-08-10）
+
+Phase-0 项③ 的分层补测（n=136，覆盖 2007-2026 三个年代）发现：
+`companyfacts.filed` 与 `SEC.filingDate` **136/136 完全一致**，但有 1 例
+EDGAR 的 acceptance 晚于法定 filing date **36 天**
+（ABT `0001104659-10-033097`：filed 2010-05-04，accepted 2010-06-09）。
+按 `filed` 标注可得性，会在那 36 天里把一份尚不可见的文档标为已可得
+—— 正是本基准要检出的错误类型，出现在自己的 gold label 里。
+
+**修正**：`avail_time = max(filingDate, acceptanceDate)`。
+拉取 63 家公司全部 submissions 分片，得 462,345 个 accession 的映射
+（`data/acceptance.json`），1,657 个 fact entry 的可得时间因此后移。
+`build_bench.py` 同时改为自包含 —— 直接从 companyfacts 计算碰撞对，
+不再依赖用旧语义算出的 `revisions.csv`。
+
+| | v1 (filed) | v2 (max) |
+|---|---|---|
+| queries / chunks | 20,392 / 40,784 | **21,268 / 42,536** |
+| tickers | 50 | **62** |
+| floor by concept | 0.6162 | **0.6128** |
+| floor by ticker | 0.6016 | 0.5978 |
+| Phase-0 [6] dual-clock | 0.9987 | **1.0000** |
+| Phase-0 [6] relative | 0.5014 | 0.5065 |
+| Phase-0 [4] | 1.0000 / 1.0000 | 1.0000 / 1.0000 |
+| Phase-0 [5] raw / masked | 0.509 / 0.506 | 0.508 / 0.509 |
+| 碰撞窗口中位 | 364 | 364（k=2 有 91.8% 落在 364±7） |
+
+**复核时那个未解释的 0.13% 缺口，就是前视偏差污染本身。**
+项⑥ 的确定性规则 `as_of >= avail_time` 在 v1 下对少数样本是错的，
+所以 GBM 学不到 1.0000；换成 `max()` 后归零。这反过来确认了新语义正确。
+
+预注册区间 `[0.50, 0.62]` 在 v2 下仍然成立，未作改动。

@@ -25,9 +25,9 @@ prediction.
 ```
 relative-only  ∈ [0.50, 0.62]     ← written down BEFORE the experiment
    0.50 = zero positional information (Phase-0 items 2/4/6)
-   0.62 = value-channel ceiling, measured ON THE ACTUAL CORPUS (n=20,392):
-            GroupKFold by concept  0.6162 (±0.0054)   <- the red line
-            GroupKFold by ticker   0.6016 (±0.0179)   <- stricter variant
+   0.62 = value-channel ceiling, measured ON THE ACTUAL CORPUS (v2, n=21,268):
+            GroupKFold by concept  0.6128 (+/-0.0228)  <- the red line
+            GroupKFold by ticker   0.5978 (+/-0.0266)  <- stricter variant
 ```
 
 If a run exceeds 0.62, that is **not** a good result — it means an undiscovered

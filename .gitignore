@@ -3,3 +3,4 @@ data/queries.jsonl
 __pycache__/
 *.pyc
 experiments/runs/
+experiments/emb_cache.npz

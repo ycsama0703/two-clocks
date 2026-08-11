@@ -330,3 +330,44 @@ rotation, so it is the one baseline that might behave differently in kind rather
 than in degree. Without it the claim covers "generic retrievers and one
 time-trained retrieval model"; with it, it would cover "methods purpose-built for
 temporal memory".
+
+
+# RoMem-style continuous phase — resolution is not the problem
+
+RoMem (Tencent, arXiv 2604.11544) rotates embeddings by `theta = t * inv_freq`
+with a **learnable** frequency base (`log_inv_freq_base`, init log 10000), read
+directly from `romem/kge/model/romem_chronor.py`. Two properties distinguish it
+from Q-RAG's rho_t:
+
+1. `t` stays **continuous** — no int32 truncation, so the 19-slot collapse the
+   closed form describes cannot occur. Resolution is effectively unlimited.
+2. `_theta` takes **one** time scalar. The mechanism is single-clock by
+   construction: a learnable frequency for one axis, not two axes.
+
+Applied to our chunks (Q-RAG's trained encoder as the text tower, n=1500):
+
+| arm | accuracy |
+|---|---|
+| romem-event (what RoMem does today) | **0.5300** |
+| romem-avail | **1.0000** |
+| romem-dual | **1.0000** |
+
+## Why this matters more than another failing baseline
+
+It closes off the most natural objection to the whole result. One could argue the
+19-slot collision is merely a coarse implementation, and that a finer positional
+code would not suffer it. **Continuous phase with a learnable frequency is that
+finer code, and it fails identically** — 0.530 against Q-RAG's rho_t at 0.523.
+
+Meanwhile `romem-avail` reaches **1.0000**, higher than any other system in E1
+(Q-RAG's best was 0.996). The mechanism is not weak; it is strictly more
+expressive than the truncated one. That is exactly what makes its failure on the
+event axis decisive.
+
+**The failure is dimensional, not a matter of resolution.** as-of eligibility is
+not information that lives on the event axis at reduced precision — it is not on
+that axis at all. No amount of resolution recovers it; only a second axis does.
+
+Note `romem-dual` also hits 1.0000, above the red line, which is expected and not
+a leak: supplying the availability clock supplies the answer. It is a ceiling, not
+a baseline.

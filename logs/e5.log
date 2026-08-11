@@ -1,0 +1,20 @@
+task A 600   task B 600
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3989.06it/s]
+   encode 0/2394
+embeddings ready dim=768
+
+==============================================================
+E5  capacity allocation (total dim 768)
+==============================================================
+avail dims   event dims      task A    task B
+384          384             0.9317    0.9750
+256          512             0.9100    0.9750
+128          640             0.9083    0.9750
+64           704             0.8883    0.9667
+32           736             0.8650    0.9800
+16           752             0.8133    0.9817
+8            760             0.5633    0.9600
+
+1:1 split (384/384)      task A 0.9317  task B 0.9750
+best task B at 16 dims   task A 0.8133  task B 0.9817  (delta B +0.0067)

@@ -446,3 +446,60 @@ presenting design taste as a contribution.
 
 **The paper is benchmark + theory, with `dual-clock` as a reference upper bound
 throughout.** That is the strongest claim this evidence supports.
+
+
+# E5 — capacity allocation: no Pareto improvement
+
+Hypothesis: the naive dual-clock split wastes capacity. The availability axis
+only has to separate "which version precedes as_of" — k=2 in 76% of series, so
+roughly 1 bit — while the event axis must separate L=200 pool positions
+(~7.6 bits). A 1:1 split of 768 dimensions should therefore starve the event
+axis. Sweeping the split should show task A flat and task B rising.
+
+| avail dims | event dims | task A | task B |
+|---|---|---|---|
+| 384 | 384 | 0.9317 | 0.9750 |
+| 256 | 512 | 0.9100 | 0.9750 |
+| 128 | 640 | 0.9083 | 0.9750 |
+| 64 | 704 | 0.8883 | 0.9667 |
+| 32 | 736 | 0.8650 | 0.9800 |
+| 16 | 752 | 0.8133 | 0.9817 |
+| 8 | 760 | 0.5633 | 0.9600 |
+
+**Refuted.** Task B is flat throughout (0.96-0.98); task A falls monotonically
+and collapses to chance at 8 dimensions. There is no Pareto improvement: capacity
+taken from the availability band buys nothing on the event side and costs task A
+directly.
+
+## The reasoning error, which is the transferable part
+
+The argument confused **the entropy of the label** with **the capacity the
+representation needs**.
+
+What gets encoded is not the answer "which version is earlier" (1 bit). It is the
+candidate's **position within the availability ordering** — which must separate
+L=200 positions, exactly the same order of magnitude as the event axis. A 1-bit
+label can require a high-capacity representation to arrive at.
+
+Stated generally: **output entropy is not an upper bound on input representation
+capacity.** Any argument of the form "this only needs to output k bits, so k
+dimensions suffice" is invalid without checking what must be distinguished to
+produce those bits.
+
+## Status of the method line after E5
+
+Four attempts, each refuted by evidence rather than abandoned:
+
+1. dual-clock phase decomposition — E3: naive two-axis already at 0.94, the
+   oracle consumes the headroom
+2. lattice-matched frequency design — occupied by PeriodPatch / TimelyGPT /
+   learnable-Fourier; pinning bands to a known period is standard there
+3. extrapolation irreparability — E4: all arms flat; the hypothesis conflated
+   sequence length with pool size
+4. capacity allocation — E5: no Pareto improvement; label entropy mistaken for
+   representation capacity
+
+Note also that task B here (0.975 at the 1:1 split) is NOT comparable to task B
+in E3 (0.63). E3's task B carries a query anchor and requires a distance
+judgement; this one is a simpler same-filing/different-period discrimination.
+Two different quantities that happen to share a name.

@@ -1,0 +1,18 @@
+task A pairs: 400   task B pairs: 400
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 4470.13it/s]
+encoding 1600 chunks (CPU, a few minutes)
+embeddings ready: 1600
+interpolate factor: 1
+interpolate factor: 1
+
+==================================================================
+E3   no single ordering supports both axes
+==================================================================
+arm              ordering               task A     task B
+relative-only    by event time           0.490      0.638
+relative-only    by filing time          0.850      0.486
+dual-clock       by event time           0.838      0.628
+dual-clock       by filing time          0.873      0.634
+
+chance = 0.500;  A = as-of eligibility,  B = period matching

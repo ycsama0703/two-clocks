@@ -1,0 +1,162 @@
+{
+ "bm25|by event|no-time": [
+  0.5173333333333333,
+  0.03255081497528989
+ ],
+ "bm25|by event|relative-only": [
+  0.4953333333333333,
+  0.025612496949731396
+ ],
+ "bm25|by event|absolute-event": [
+  0.49733333333333335,
+  0.04291593850514956
+ ],
+ "bm25|by event|absolute-avail": [
+  0.7506666666666667,
+  0.02069889959501336
+ ],
+ "bm25|by event|dual-clock": [
+  0.7299999999999999,
+  0.02556038601690774
+ ],
+ "bm25|by filing|no-time": [
+  0.5173333333333333,
+  0.03255081497528989
+ ],
+ "bm25|by filing|relative-only": [
+  0.704,
+  0.022842455598682414
+ ],
+ "bm25|by filing|absolute-event": [
+  0.51,
+  0.03960920207336785
+ ],
+ "bm25|by filing|absolute-avail": [
+  0.7473333333333333,
+  0.03923717058549908
+ ],
+ "bm25|by filing|dual-clock": [
+  0.7233333333333334,
+  0.021602468994692876
+ ],
+ "gte-base|by event|no-time": [
+  0.5293333333333334,
+  0.021847959477565265
+ ],
+ "gte-base|by event|relative-only": [
+  0.532,
+  0.01667999467092909
+ ],
+ "gte-base|by event|absolute-event": [
+  0.526,
+  0.019252705437591545
+ ],
+ "gte-base|by event|absolute-avail": [
+  0.9813333333333333,
+  0.012754084313139324
+ ],
+ "gte-base|by event|dual-clock": [
+  0.9466666666666667,
+  0.011352924243950915
+ ],
+ "gte-base|by filing|no-time": [
+  0.5293333333333334,
+  0.021847959477565265
+ ],
+ "gte-base|by filing|relative-only": [
+  0.9426666666666665,
+  0.017938165396098285
+ ],
+ "gte-base|by filing|absolute-event": [
+  0.6626666666666665,
+  0.022350739485653612
+ ],
+ "gte-base|by filing|absolute-avail": [
+  0.982,
+  0.007180219742845986
+ ],
+ "gte-base|by filing|dual-clock": [
+  0.9406666666666667,
+  0.014360439485692014
+ ],
+ "e5-base|by event|no-time": [
+  0.5626666666666666,
+  0.020912516188477497
+ ],
+ "e5-base|by event|relative-only": [
+  0.5606666666666668,
+  0.01830604029032798
+ ],
+ "e5-base|by event|absolute-event": [
+  0.536,
+  0.020483055327649626
+ ],
+ "e5-base|by event|absolute-avail": [
+  0.9893333333333333,
+  0.003265986323710871
+ ],
+ "e5-base|by event|dual-clock": [
+  0.9486666666666667,
+  0.00884433277428108
+ ],
+ "e5-base|by filing|no-time": [
+  0.5626666666666666,
+  0.020912516188477497
+ ],
+ "e5-base|by filing|relative-only": [
+  0.9493333333333333,
+  0.012183777921664715
+ ],
+ "e5-base|by filing|absolute-event": [
+  0.6900000000000001,
+  0.019776529298921746
+ ],
+ "e5-base|by filing|absolute-avail": [
+  0.99,
+  0.0059628479399994406
+ ],
+ "e5-base|by filing|dual-clock": [
+  0.9480000000000001,
+  0.006863753427324662
+ ],
+ "gte-multilingual|by event|no-time": [
+  0.5546666666666666,
+  0.0303021818063027
+ ],
+ "gte-multilingual|by event|relative-only": [
+  0.5353333333333333,
+  0.01880898130622115
+ ],
+ "gte-multilingual|by event|absolute-event": [
+  0.5433333333333333,
+  0.014142135623730963
+ ],
+ "gte-multilingual|by event|absolute-avail": [
+  0.9906666666666666,
+  0.004898979485566367
+ ],
+ "gte-multilingual|by event|dual-clock": [
+  0.9526666666666668,
+  0.010624918300339485
+ ],
+ "gte-multilingual|by filing|no-time": [
+  0.5546666666666666,
+  0.0303021818063027
+ ],
+ "gte-multilingual|by filing|relative-only": [
+  0.9426666666666665,
+  0.007423685817106666
+ ],
+ "gte-multilingual|by filing|absolute-event": [
+  0.6546666666666667,
+  0.028331372481167724
+ ],
+ "gte-multilingual|by filing|absolute-avail": [
+  0.9893333333333333,
+  0.004422166387140555
+ ],
+ "gte-multilingual|by filing|dual-clock": [
+  0.9506666666666665,
+  0.009285592184789427
+ ]
+}

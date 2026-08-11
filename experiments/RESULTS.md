@@ -175,3 +175,72 @@ read 2.1 GB.
 and "too quiet" are both alarms. A monitor that reported nothing for an hour on a
 20-minute job, and a step that finished 30x faster than physically possible, were
 the only signals that anything was wrong - the exit codes were all zero.
+
+
+# E1 FULL — four retrieval systems, both orderings, five time inputs
+
+`experiments/e1_full.py`, run on a rented RTX 4090 (vast.ai, Korea). n=1500 pairs
+from the v3 corpus, pool L=200, logistic probe on the A-vs-B difference,
+GroupKFold by concept. Pool composition, A/B order and filler are fixed ONCE and
+shared across every encoder and arm, so differences cannot come from resampling.
+
+Red line 0.6249 (value-channel ceiling on v3). Chance 0.5000.
+
+| encoder | ordering | no-time | relative-only | absolute-event | absolute-avail | dual-clock |
+|---|---|---|---|---|---|---|
+| BM25 | by event | 0.517 | **0.495** | **0.497** | 0.751 | 0.730 |
+| BM25 | by filing | 0.517 | 0.704 | 0.510 | 0.747 | 0.723 |
+| GTE-base | by event | 0.529 | **0.532** | **0.526** | 0.981 | 0.947 |
+| GTE-base | by filing | 0.529 | 0.943 | 0.663 | 0.982 | 0.941 |
+| E5-base | by event | 0.563 | **0.561** | **0.536** | 0.989 | 0.949 |
+| E5-base | by filing | 0.563 | 0.949 | 0.690 | 0.990 | 0.948 |
+| gte-multilingual | by event | 0.555 | **0.535** | **0.543** | 0.991 | 0.953 |
+| gte-multilingual | by filing | 0.555 | 0.943 | 0.655 | 0.989 | 0.951 |
+
+## What this establishes
+
+**All four systems degrade.** Ordered by event time, both single-axis arms
+(`relative-only`, `absolute-event`) sit below the red line on every encoder —
+including lexical BM25 and `gte-multilingual-base`, which is Q-RAG's own
+backbone. This is a boundary of a class of representations, not one
+implementation's defect. That was E1's decisive question.
+
+**The harness is sound.** `absolute-avail` reaches 0.98-0.99 on the dense
+encoders: when availability is supplied, the task is solvable, so failure comes
+from the representation and not from difficulty. It is deliberately NOT a fair
+baseline — ordering by availability and then revealing the index hands over the
+label — it exists only as a sanity ceiling.
+
+**Ordering decides everything.** The same `relative-only` arm, changing only how
+the corpus is ordered:
+
+```
+GTE-base           0.532 -> 0.943   +41.1 pp
+E5-base            0.561 -> 0.949   +38.8 pp
+gte-multilingual   0.535 -> 0.943   +40.8 pp
+BM25               0.495 -> 0.704   +20.9 pp
+```
+
+Four independent systems reproduce the crossover E3 found. Nothing about the
+positional mechanism changed — only which clock the corpus was sorted on.
+
+## Caveats to carry into the paper
+
+- BM25's ceiling is 0.75, not 0.99. Its feature width equals vocabulary size, so
+  a linear probe is capacity-limited. Direction is unaffected; absolute levels
+  for the BM25 row are not comparable to the dense rows.
+- `absolute-event` sits slightly above the red line under filing order
+  (0.655-0.690). It is not a leak: with the pool sorted by availability, an
+  absolute index partially encodes availability. It is the same crossover seen
+  in `relative-only`, weakened.
+- Still absent: Q-RAG's trained checkpoint (only its backbone geometry was
+  tested) and RoMem. Those two would move the claim from "generic retrievers
+  fail" to "methods purpose-built for time also fail".
+
+## Engineering note
+
+The 300-pair smoke run passed cleanly and the 1500-pair run crashed immediately:
+BM25 feature width is the vocabulary size, which was even at 300 pairs and odd
+(2018 -> halves of 1009/1008) at 1500, breaking the RoPE half-split. **A smoke
+test validates the pipeline, not the edge cases** — dense encoders are always
+768-wide and could never have surfaced it.

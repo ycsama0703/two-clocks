@@ -244,3 +244,26 @@ BM25 feature width is the vocabulary size, which was even at 300 pairs and odd
 (2018 -> halves of 1009/1008) at 1500, breaking the RoPE half-split. **A smoke
 test validates the pipeline, not the edge cases** — dense encoders are always
 768-wide and could never have surfaced it.
+
+
+# E3 on the v3 corpus — the crossover holds at 669-company scale
+
+`experiments/e3_ordering.py`, GTE-base, L=200, 400 pairs per task, rebuilt task B
+from the 684-company companyfacts.
+
+| arm | ordering | task A (as-of) | task B (period) |
+|---|---|---|---|
+| relative-only | by event time | **0.490** | 0.638 |
+| relative-only | by filing time | 0.850 | **0.486** |
+| dual-clock | by event time | 0.838 | 0.628 |
+| dual-clock | by filing time | 0.873 | 0.634 |
+
+Compared with v2 (62 companies: 0.497/0.679 and 0.910/0.440) the diagonal is
+more symmetric — both failure cells now sit essentially exactly on chance
+(0.490, 0.486). The claim is unchanged and better supported: **every single
+ordering is blind on one of the two axes; the dual-clock representation is not.**
+
+Task B remains lower than task A for dual-clock (0.63 vs 0.87). That gap is the
+method-shaped opening noted earlier: splitting the embedding in half gives each
+axis only 384 dimensions. Whether a frequency-band split — with the availability
+axis tuned to the measured 364-day lattice — closes it is untested.

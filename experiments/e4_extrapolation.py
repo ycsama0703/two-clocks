@@ -38,7 +38,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
 N_PAIRS = int(os.environ.get("N_PAIRS", 800))
-LS = [200, 400, 700, 1000]   # >1000 leaves <10 companies: a different subset, not a bigger pool
+LS = [200, 500, 1000, 2000, 5000]
 FIT_L = 200
 SEED = 0
 rng = np.random.default_rng(SEED)

@@ -267,3 +267,66 @@ Task B remains lower than task A for dual-clock (0.63 vs 0.87). That gap is the
 method-shaped opening noted earlier: splitting the embedding in half gives each
 axis only 384 dimensions. Whether a frequency-band split — with the availability
 axis tuned to the measured 364-day lattice — closes it is untested.
+
+
+# E1 FINAL — five systems including Q-RAG's own trained checkpoint
+
+Adds `qrag-ft-contriever-on-babilong_qa3` as a fifth encoder: the only released
+Q-RAG checkpoint whose config sets `positions_processor: relative`, i.e. the only
+one where rho_t was actually trained. Same 1500 instances, same fixed pools.
+
+Red line 0.6249. Chance 0.5000.
+
+| encoder | ordering | no-time | relative-only | absolute-event | absolute-avail | dual-clock |
+|---|---|---|---|---|---|---|
+| BM25 | by event | 0.517 | **0.495** | **0.497** | 0.751 | 0.730 |
+| BM25 | by filing | 0.517 | 0.704 | 0.510 | 0.747 | 0.723 |
+| GTE-base | by event | 0.529 | **0.532** | **0.526** | 0.981 | 0.947 |
+| GTE-base | by filing | 0.529 | 0.943 | 0.663 | 0.982 | 0.941 |
+| E5-base | by event | 0.563 | **0.561** | **0.536** | 0.989 | 0.949 |
+| E5-base | by filing | 0.563 | 0.949 | 0.690 | 0.990 | 0.948 |
+| gte-multilingual | by event | 0.555 | **0.535** | **0.543** | 0.991 | 0.953 |
+| gte-multilingual | by filing | 0.555 | 0.943 | 0.655 | 0.989 | 0.951 |
+| **qrag-babilong-qa3** | by event | 0.531 | **0.523** | **0.517** | 0.996 | 0.941 |
+| **qrag-babilong-qa3** | by filing | 0.531 | 0.944 | 0.687 | 0.997 | 0.947 |
+
+## The decisive result
+
+**Ten single-axis cells across five systems, every one below the red line
+(0.495-0.561).** The pre-registered reading was: all baselines degrade means a
+boundary of a class of mechanisms; only Q-RAG degrades means one implementation's
+defect. It is the former, and more strongly than expected - lexical BM25 sits on
+the same line as the dense encoders, so this is not a property of embedding
+architecture.
+
+The last row carries the most weight. That encoder was trained with rho_t active
+on BabiLong QA3 (three-hop *temporal* reasoning), where Q-RAG reports
+state-of-the-art with essentially no degradation out to 10M tokens. On the as-of
+axis it scores **0.523** - indistinguishable from BM25's 0.495, which never had
+any positional mechanism at all.
+
+The same model reaches **0.996** on `absolute-avail`, the highest of any system.
+Supplied with availability it is near-perfect; denied it, it falls to chance.
+**The failure is not capability, it is a missing axis in the representation.**
+
+## Ordering effect, reproduced five times
+
+```
+relative-only,  by event -> by filing
+  BM25               0.495 -> 0.704   +20.9 pp
+  GTE-base           0.532 -> 0.943   +41.1 pp
+  E5-base            0.561 -> 0.949   +38.8 pp
+  gte-multilingual   0.535 -> 0.943   +40.8 pp
+  qrag-babilong-qa3  0.523 -> 0.944   +42.1 pp
+```
+
+Nothing about the positional mechanism changes between the two columns. Only the
+clock the corpus is sorted on changes.
+
+## Still missing
+
+RoMem (Tencent) is not yet included. It handles valid-time staleness by phase
+rotation, so it is the one baseline that might behave differently in kind rather
+than in degree. Without it the claim covers "generic retrievers and one
+time-trained retrieval model"; with it, it would cover "methods purpose-built for
+temporal memory".

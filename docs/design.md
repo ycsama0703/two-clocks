@@ -228,3 +228,63 @@ EDGAR 的 acceptance 晚于法定 filing date **36 天**
 所以 GBM 学不到 1.0000；换成 `max()` 后归零。这反过来确认了新语义正确。
 
 预注册区间 `[0.50, 0.62]` 在 v2 下仍然成立，未作改动。
+
+
+## Reproducing Q-RAG's trained encoder (E1's fifth system)
+
+Five checkpoints are published under the `Q-RAG` org on HuggingFace. **Only one
+is usable for this benchmark:**
+
+```
+qrag-ft-contriever-on-babilong_qa3     positions_processor: relative   <- USE THIS
+qrag-ft-contriever-on-babilong_qa2     (babilong, also relative)
+qrag-ft-e5-on-hotpotqa                 positions_processor: none
+qrag-ft-e5-on-musique                  none
+qrag-ft-gte-on-hotpotqa_musique        none
+```
+
+The HotpotQA/MuSiQue configs set `positions_processor: none`, so rho_t was never
+trained in them. Evaluating those would measure a model that has never seen the
+positional mechanism under test — the result would look like evidence and mean
+nothing.
+
+The BabiLong QA3 config confirms the two facts the closed form depends on:
+`positions_processor: relative` and `interpolate_factor: 1` (so positions are
+truncated to int32 and a segment holds at most 19 distinguishable slots).
+
+### Loading it
+
+The checkpoint is a raw training dict, not an HF model directory:
+
+```
+critic / policy / random_policy / v_net_target / action_embed_target /
+critic_optim / scheduler / alpha
+```
+
+`action_embed_target` is the candidate tower. 204 tensors, of which 199 sit under
+`action_embed.model.model.` in standard BERT layout. The other five are
+telling:
+
+```
+action_embed.model.cls_token
+action_embed.model.sep_token
+action_embed.model.head.weight / head.bias
+action_embed.rotary_emb.freqs        <- the rho_t frequency table itself
+```
+
+`facebook/contriever` publishes only `.bin`, and transformers >= 4.56 refuses to
+`torch.load` a `.bin` on torch < 2.6 (CVE-2025-32434). Do not downgrade
+transformers: contriever's published weights are not needed. Contriever is
+architecturally BERT, so instantiate an empty `BertModel` from an inferred config
+and load the 199 tensors into it (`src/qrag_encoder.py`). Dimensions are read off
+the weights: vocab 30522, hidden 768, 12 layers, intermediate 3072.
+
+The load must be strict on the encoder body. A partial load still runs and still
+produces plausible numbers — `missing` must be zero apart from `pooler.*`, which
+mean-pooling does not use.
+
+### An immediate observation
+
+Two collision candidates differing only in their numeric value embed at
+**cos = 0.9995** under this encoder. That is the microscopic reason the `no-time`
+baseline sits near chance: the text channel barely separates them at all.

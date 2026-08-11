@@ -158,5 +158,45 @@
  "gte-multilingual|by filing|dual-clock": [
   0.9506666666666665,
   0.009285592184789427
+ ],
+ "qrag-babilong-qa3|by event|no-time": [
+  0.5306666666666666,
+  0.03043389922803556
+ ],
+ "qrag-babilong-qa3|by event|relative-only": [
+  0.5233333333333333,
+  0.030037014202850165
+ ],
+ "qrag-babilong-qa3|by event|absolute-event": [
+  0.5173333333333334,
+  0.01890326250501043
+ ],
+ "qrag-babilong-qa3|by event|absolute-avail": [
+  0.9959999999999999,
+  0.0038873012632302103
+ ],
+ "qrag-babilong-qa3|by event|dual-clock": [
+  0.9406666666666667,
+  0.010624918300339462
+ ],
+ "qrag-babilong-qa3|by filing|no-time": [
+  0.5306666666666666,
+  0.03043389922803556
+ ],
+ "qrag-babilong-qa3|by filing|relative-only": [
+  0.944,
+  0.0048989794855663574
+ ],
+ "qrag-babilong-qa3|by filing|absolute-event": [
+  0.6873333333333334,
+  0.021540659228538008
+ ],
+ "qrag-babilong-qa3|by filing|absolute-avail": [
+  0.9966666666666667,
+  0.004216370213557849
+ ],
+ "qrag-babilong-qa3|by filing|dual-clock": [
+  0.9473333333333332,
+  0.007118052168020864
  ]
 }

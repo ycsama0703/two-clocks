@@ -45,6 +45,7 @@ ENCODERS = [
     ("gte-base", "thenlper/gte-base"),
     ("e5-base", "intfloat/e5-base-v2"),
     ("gte-multilingual", "Alibaba-NLP/gte-multilingual-base"),
+    ("qrag-babilong-qa3", "/root/tc/qrag_action_encoder"),
 ]
 ARMS = ["no-time", "relative-only", "absolute-event", "absolute-avail", "dual-clock"]
 ORDERINGS = [("event_time", "by event"), ("avail_time", "by filing")]

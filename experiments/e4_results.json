@@ -1,0 +1,14 @@
+{
+ "relative-only|200": 0.51625,
+ "relative-only|400": 0.5525,
+ "relative-only|700": 0.53,
+ "relative-only|1000": 0.5287499999999999,
+ "absolute|200": 0.535,
+ "absolute|400": 0.5050000000000001,
+ "absolute|700": 0.51875,
+ "absolute|1000": 0.5275000000000001,
+ "dual-clock|200": 0.9387500000000001,
+ "dual-clock|400": 0.94625,
+ "dual-clock|700": 0.94625,
+ "dual-clock|1000": 0.945
+}

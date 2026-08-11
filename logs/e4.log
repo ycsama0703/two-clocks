@@ -1,0 +1,22 @@
+tickers with >=1002 chunks: 73   usable queries: 52510
+instances 800   chunks to encode 1600   balance 0.505
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 4404.04it/s]
+   encode 0/1600
+   encode 1280/1600
+embeddings ready, dim=768
+
+==========================================================================
+E4  probe FITTED ONLY AT L=200, applied unchanged at larger L
+==========================================================================
+arm                L=200     L=400     L=700    L=1000
+relative-only     0.5162    0.5525    0.5300    0.5287
+absolute          0.5350    0.5050    0.5188    0.5275
+dual-clock        0.9388    0.9463    0.9463    0.9450
+
+degradation from L=200 to L=1000:
+  relative-only  +0.0125
+  absolute       -0.0075
+  dual-clock     +0.0062
+
+written to e4_results.json

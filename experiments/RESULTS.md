@@ -371,3 +371,78 @@ that axis at all. No amount of resolution recovers it; only a second axis does.
 Note `romem-dual` also hits 1.0000, above the red line, which is expected and not
 a leak: supplying the availability clock supplies the answer. It is a ceiling, not
 a baseline.
+
+
+# E4 — length extrapolation: NO method contribution
+
+The experiment that was supposed to decide whether a method contribution exists.
+Pre-registered reading, written before the run:
+
+```
+absolute degrades, dual-clock holds  -> method contribution exists
+neither degrades                     -> no method contribution; benchmark + theory
+both degrade                         -> second axis does not rescue extrapolation
+```
+
+Probe fitted ONCE at L=200, applied unchanged at larger L. Refitting per L would
+measure in-distribution fit, not extrapolation. GTE-base, 73 companies with
+>=1002 chunks, n=800.
+
+| arm | L=200 | L=400 | L=700 | L=1000 | delta |
+|---|---|---|---|---|---|
+| relative-only | 0.5162 | 0.5525 | 0.5300 | 0.5287 | +0.013 |
+| absolute | 0.5350 | 0.5050 | 0.5188 | 0.5275 | -0.008 |
+| dual-clock | 0.9388 | 0.9463 | 0.9463 | 0.9450 | +0.006 |
+
+**Outcome: the second reading. Nothing degrades.** All three arms are flat across
+a 5x increase in pool size.
+
+## Why the hypothesis was wrong
+
+The argument had been: Q-RAG avoids absolute positions in order to keep length
+generalisation (1M -> 10M tokens with no degradation), so absolute timestamps
+should break under extrapolation while phase codes survive — and that gap would
+be the method-shaped opening.
+
+That conflated two different quantities. Q-RAG's length generalisation concerns
+SEQUENCE LENGTH exceeding the training range. Our L is POOL SIZE — the number of
+candidates. Position indices stay in the same order of magnitude, so nothing goes
+out of range and nothing breaks.
+
+`absolute` also has nothing to lose: it sits at chance already (0.5350 at L=200).
+An arm at chance cannot degrade.
+
+## Range limit, and why it is not evasion
+
+L was capped at 1000 rather than the originally planned 5000:
+
+```
+L=200   466 companies   155,571 queries
+L=500   259 companies   120,066 queries
+L=1000   73 companies    52,510 queries
+L=2000    7 companies     9,503 queries
+L=5000    0 companies
+```
+
+Median chunks per company is 368, maximum 4046. Beyond L=1000 the "larger pool"
+becomes a handful of extreme companies — a different subsample, not a bigger
+pool, and the confound would swamp any extrapolation effect. The honest statement
+is that no degradation appears **within the range this corpus can support**.
+
+## Consequence: the method line closes
+
+Three attempts, each refuted by evidence rather than abandoned:
+
+1. **Dual-clock phase decomposition** — E3 shows naive two-axis already reaches
+   0.94; the oracle consumes the headroom.
+2. **Lattice-matched frequency design** — largely occupied (PeriodPatch,
+   TimelyGPT, learnable-Fourier). Pinning bands to a known period is standard
+   practice in that literature, not a contribution.
+3. **Extrapolation irreparability** — E4 refutes it; all three arms flat.
+
+What remains un-refuted is "capacity allocation between a lattice axis and a
+dense axis", but E4 was its only empirical support. Writing it up now would be
+presenting design taste as a contribution.
+
+**The paper is benchmark + theory, with `dual-clock` as a reference upper bound
+throughout.** That is the strongest claim this evidence supports.

@@ -503,3 +503,72 @@ Note also that task B here (0.975 at the 1:1 split) is NOT comparable to task B
 in E3 (0.63). E3's task B carries a query anchor and requires a distance
 judgement; this one is a simpler same-filing/different-period discrimination.
 Two different quantities that happen to share a name.
+
+
+# E6 — abstention: the predicate selects nothing
+
+Last attempt at a method contribution. Having failed to repair the
+representation four times, ask instead whether the system can at least KNOW when
+it cannot answer. The collision predicate `floor(rho_a) == floor(rho_b)` is
+deterministic and model-free, so it can gate a retrieval result before any model
+runs.
+
+n=2000, L=200, ordered by event time, out-of-fold predictions.
+
+```
+collision rate      0.6255      (closed form at delta_i=1: 0.9095; median delta_i 3)
+
+colliding      n=1251   accuracy 0.5659
+non-colliding  n=749    accuracy 0.5594
+selective gap          -0.0065          <- sign is even reversed
+```
+
+By delta_i, flat as well, while the collision rate swings from 0.90 to 0.05:
+
+| delta_i | n | collide rate | accuracy |
+|---|---|---|---|
+| 1 | 578 | 0.90 | 0.5727 |
+| 2-3 | 581 | 0.80 | 0.5422 |
+| 4-8 | 502 | 0.49 | 0.5677 |
+| 9+ | 339 | 0.05 | 0.5782 |
+
+Risk-coverage: abstaining on 80% of queries moves accuracy from 0.5635 to
+0.5750. Giving up four fifths of the traffic buys essentially nothing.
+
+## Why this was inevitable, and should have been derived rather than measured
+
+The predicate forecasts "the positional channel supplies no information here".
+But E1 already established that under event-time ordering the positional channel
+supplies no information **anywhere** — `relative-only` sits at 0.495-0.561 across
+all six systems. Colliding or not, the model has only the value channel, so the
+two groups must score alike.
+
+**The predicate was selecting on a condition that is always true.** Collision is
+not a sufficient cause of failure; it is one symptom of a single global cause
+(the information is not on this axis at all).
+
+## Conclusion for the method line: five refutations, one diagnosis
+
+| # | angle | refuted by | reason |
+|---|---|---|---|
+| 1 | dual-clock phase decomposition | E3 | oracle already at 0.94, no headroom |
+| 2 | lattice-matched frequency design | literature | PeriodPatch / TimelyGPT / learnable-Fourier |
+| 3 | extrapolation irreparability | E4 | conflated sequence length with pool size |
+| 4 | capacity allocation | E5 | label entropy is not representation capacity |
+| 5 | abstention via collision predicate | E6 | predicate selects an always-true condition |
+
+They converge on one statement:
+
+> The information as-of eligibility requires **is not in the input at all**. It
+> cannot be recovered by better encoding (1, 2, 4), cannot be exposed by
+> extrapolation (3), and cannot be routed around by detecting its absence (5) —
+> because it is not sometimes missing, it is always missing.
+
+Any method contribution would first have to put availability metadata back into
+the input, which is a data-pipeline decision, not a modelling problem.
+
+**This is a negative result with evidence behind it, and it belongs in the
+paper.** It explains precisely why this is a benchmark-and-theory contribution
+rather than a method one: not for lack of trying, but because there is no work
+for the representation layer to do. That in turn reinforces the central claim —
+the defect is in the evaluation paradigm's missing axis, not in the methods.

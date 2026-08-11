@@ -3,3 +3,30 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 4558.95it/s]
    encode 0/4000
    encode 2560/4000
+embeddings dim=768
+
+collision rate: 0.6255   (closed form 1-18/(L-1) at delta=1: 0.9095)
+median delta_i 3
+
+==================================================================
+E6  does the collision predicate select the failures?
+==================================================================
+  colliding        n=1251   accuracy 0.5659
+  non-colliding    n=749    accuracy 0.5594
+  selective gap  -0.0065
+
+  by delta_i:
+    delta_i 1      n=578    collide 0.90  accuracy 0.5727
+    delta_i 2-3    n=581    collide 0.80  accuracy 0.5422
+    delta_i 4-8    n=502    collide 0.49  accuracy 0.5677
+    delta_i 9-1000000 n=339    collide 0.05  accuracy 0.5782
+
+  risk-coverage (abstain on colliding first, then by smallest delta_i):
+    abstain    0%  answered n=2000   accuracy 0.5635
+    abstain   20%  answered n=1600   accuracy 0.5600
+    abstain   40%  answered n=1200   accuracy 0.5600
+    abstain   60%  answered n=800    accuracy 0.5575
+    abstain   70%  answered n=600    accuracy 0.5700
+    abstain   80%  answered n=400    accuracy 0.5750
+
+written to e6_results.json
